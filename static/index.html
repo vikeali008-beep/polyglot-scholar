@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <meta name="theme-color" content="#2b4c7e" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="description" content="智译学研 Polyglot Scholar — 俄语与英语学术论文中文对照精读、俄语重音变格解析与多语种词汇记忆在线网站" />
+  <title>智译学研 · Polyglot Scholar — 俄英学术论文双语精读在线网站</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232b4c7e'/%3E%3Ctext x='16' y='22.5' text-anchor='middle' fill='white' font-family='serif' font-weight='bold' font-size='20'%3E%CE%A8%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="/static/styles.css?v=4.3" />
+</head>
+<body>
+  <!-- Top Website Navigation Bar -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button id="btnToggleSidebar" class="icon-btn" title="展开/收起论文书架">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="16" rx="2"/><line x1="9" y1="4" x2="9" y2="20"/>
+        </svg>
+      </button>
+      <div class="brand" id="brandHomeLink" title="返回网站门户首页" style="cursor:pointer">
+        <span class="brand-mark">Ψ</span>
+        <div class="brand-text">
+          <span class="brand-title">智译学研 <span class="hide-xs">· Polyglot Scholar</span></span>
+          <span class="brand-sub hide-sm">RU · EN → ZH 学术论文精读网站</span>
+        </div>
+      </div>
+    </div>
+
+    <nav class="main-nav" role="tablist">
+      <button class="nav-tab active" data-view="portal">
+        <span>🏠 <span class="nav-label-txt">首页</span></span>
+      </button>
+      <button class="nav-tab" data-view="reader">
+        <span>📖 <span class="nav-label-txt">双语精读</span></span>
+      </button>
+      <button class="nav-tab" data-view="vocab">
+        <span>🗂️ <span class="nav-label-txt">生词本</span></span>
+        <span id="navVocabCount" class="nav-badge">0</span>
+      </button>
+      <button class="nav-tab" data-view="trainer">
+        <span>🧠 <span class="nav-label-txt">闪卡训练</span></span>
+      </button>
+    </nav>
+
+    <div class="topbar-right">
+      <button id="btnOpenDoiQuick" class="btn btn-secondary btn-sm hide-sm" title="输入 DOI 编号一键检索并导入俄/英论文">
+        <span>🔗 DOI 导入</span>
+      </button>
+      <button id="btnOpenImport" class="btn btn-primary btn-sm">
+        <span>＋ <span class="hide-xs">导入论文</span></span>
+      </button>
+
+      <div class="theme-group hide-sm" title="切换护眼阅读主题">
+        <button class="theme-btn active" data-set-theme="light" title="清爽白">☀️</button>
+        <button class="theme-btn" data-set-theme="sepia" title="护眼羊皮纸">📜</button>
+        <button class="theme-btn" data-set-theme="dark" title="夜间深色">🌙</button>
+      </div>
+
+      <button id="btnOpenSettings" class="btn btn-ghost btn-sm" title="配置翻译引擎、大模型 API 与朗读音色">
+        <span>⚙️<span class="hide-md"> 设置</span></span>
+        <span id="llmStatusDot" class="status-dot" title="当前使用内置免配置混合学术引擎"></span>
+      </button>
+
+      <button id="btnUserAccount" class="btn btn-account btn-sm" title="登录或管理个人云端空间">
+        <span id="userAccountLabel">👤 登录 / 注册</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ==================== VIEW 0: WEBSITE PORTAL LANDING PAGE ==================== -->
+  <main id="viewPortal" class="view-container portal-scroll active">
+    <div class="portal-wrap">
+      <!-- Hero Banner -->
+      <section class="hero-section">
+        <div class="hero-pill">🇷🇺 Русский · 🇬🇧 English → 🇨🇳 中文 · 多用户云端学术阅读平台</div>
+        <h1 class="hero-title">读懂俄英前沿论文，<br />在真实文献语境中精通两门外语</h1>
+        <p class="hero-subtitle">
+          专为科研工作者与俄英双语学习者打造的在线精读网站。支持 <strong>DOI 开放全文自动抓取</strong>、<strong>中译逐句对齐</strong>、<strong>俄语全文重音 (<span style="font-family:'PT Serif',Georgia,'Liberation Serif',serif">ударе́ние</span>) 与六格变位还原</strong>、<strong>英俄学术词双向互证</strong>及 <strong>艾宾浩斯闪卡记忆</strong>。
+        </p>
+
+        <!-- Instant Hero DOI Bar -->
+        <form id="heroDoiForm" class="hero-doi-bar" autocomplete="off">
+          <span class="hero-doi-icon">🔗</span>
+          <input id="heroDoiInput" type="text" placeholder="直接输入俄/英论文 DOI 编号或链接（如 10.60797/IRJ.2026.170.43）立即开启双语精读..." />
+          <button type="submit" class="btn btn-primary">一键导入精读 →</button>
+        </form>
+
+        <div class="hero-cta-row">
+          <button id="btnEnterReaderHero" class="btn btn-primary btn-lg">
+            📖 进入在线精读工作台（含 4 篇精选俄/英论文）
+          </button>
+          <button id="btnHeroRegister" class="btn btn-secondary btn-lg">
+            ✨ 免费注册个人学术账号
+          </button>
+        </div>
+
+        <div class="hero-trust-row">
+          <span>✓ 免配置开箱即用</span>
+          <span>✓ 多用户书架与生词本独立隔离</span>
+          <span>✓ 支持接入个人 DeepSeek / OpenAI Key</span>
+          <span>✓ 适配电脑 · iPad · 手机浏览器</span>
+        </div>
+      </section>
+
+      <!-- Live Showcase Cards -->
+      <section class="portal-features">
+        <div class="feat-card">
+          <div class="feat-tag ru">🇷🇺 攻克科技俄语痛点</div>
+          <h3>全文重音标注 + 六格与形动词溯源</h3>
+          <p>俄语学术论文从不印重音符号，且充斥着复杂的长尾形动词（причастие）与连续二格属格链。点击文中任意俄语单词即可还原原形、查看完整六格变化表并听取母语慢速朗读。</p>
+          <div class="feat-demo-box">
+            <div class="demo-line"><strong>позволя́ющим</strong> ← 原形 <code>позволя́ть</code></div>
+            <div class="demo-sub">长尾主动形动词 · 复数 · 第三格 (Д.п.) · 使得能够……的</div>
+          </div>
+        </div>
+
+        <div class="feat-card">
+          <div class="feat-tag en">🇬🇧 ↔ 🇷🇺 英俄双向搭桥</div>
+          <h3>读一篇文献，同时激活两门外语</h3>
+          <p>首创「中-英-俄三语学术互证桥接」：查俄语词自动列出精准英语学术同义词；查英语 AWL 核心词自动给出带重音的俄语对应词，点击即可发声对比。</p>
+          <div class="feat-demo-box">
+            <div class="demo-line"><strong>heterogeneous</strong> <code>/ˌhetərəˈdʒiːniəs/</code></div>
+            <div class="demo-sub">🇨🇳 异质的，多样的 ｜ 🇷🇺 <code>гетероге́нный · неодноро́дный</code></div>
+          </div>
+        </div>
+
+        <div class="feat-card">
+          <div class="feat-tag sync">☁️ 个人独立空间 & 记忆闭环</div>
+          <h3>DOI 四级检索 · 3D 闪卡 · Anki 导出</h3>
+          <p>串联 Crossref、OpenAlex、Semantic Scholar 与期刊落地页自动抓取开放 PDF 全文；内置艾宾浩斯 SM-2 闪卡与论文原句格位填空测试，支持一键导出 Anki 记忆包。</p>
+          <div class="feat-demo-box">
+            <div class="demo-line"><strong>SM-2 智能复习 + 原版 PDF 同屏对照</strong></div>
+            <div class="demo-sub">注册账号即可跨手机、平板与电脑同步书架与生词进度</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Quick Sample Paper Launchers -->
+      <section class="portal-samples-sec">
+        <div class="sec-head">
+          <h2>📚 点击任意文献立即开始双语精读</h2>
+          <span class="muted">支持随时上传你自己的 PDF 论文或通过 DOI 导入</span>
+        </div>
+        <div id="portalPaperCards" class="portal-paper-grid"></div>
+      </section>
+
+      <footer class="portal-footer">
+        <div><strong>Ψ 智译学研 · Polyglot Scholar Online</strong> — 俄英学术论文阅读与语言习得网站</div>
+        <div class="muted">支持电脑浏览器、平板与手机访问（可通过浏览器菜单「添加到主屏幕」作为独立 App 使用）</div>
+      </footer>
+    </div>
+  </main>
+
+  <!-- ==================== VIEW 1: READER WORKBENCH ==================== -->
+  <main id="viewReader" class="view-container">
+    <div id="mobileDrawerBackdrop" class="drawer-backdrop hidden"></div>
+    <div class="workbench">
+      <!-- Left Sidebar: Paper Library -->
+      <aside id="paperSidebar" class="sidebar">
+        <div class="sidebar-header">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <h3 style="margin:0">文献书架</h3>
+            <button id="btnCloseSidebarMobile" class="close-drawer-mobile">✕</button>
+          </div>
+          <form id="sidebarDoiForm" class="sidebar-doi-box" autocomplete="off">
+            <input id="sidebarDoiInput" type="text" placeholder="输入 DOI 编号回车导入..." title="例如：10.60797/IRJ.2026.170.43 或 10.18653/v1/N19-1423" />
+            <button id="btnSidebarDoi" type="submit" class="btn btn-primary btn-xs">导入</button>
+          </form>
+          <div class="lang-filter-mini">
+            <button class="chip active" data-paper-filter="all">全部</button>
+            <button class="chip" data-paper-filter="ru">🇷🇺 俄语</button>
+            <button class="chip" data-paper-filter="en">🇬🇧 英语</button>
+          </div>
+        </div>
+        <div id="paperList" class="paper-list"></div>
+        <div class="sidebar-footer">
+          <div class="quick-guide">
+            <strong>💡 精读提示</strong>
+            <p>• 点<strong>任意俄/英单词</strong>：查原形、重音、六格表与英俄互证</p>
+            <p>• 点句末<strong>「拆解」</strong>：精讲长难句结构与慢速跟读</p>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Center: Bilingual Academic Reader -->
+      <section class="reader-pane">
+        <div class="reader-toolbar">
+          <div class="toolbar-group">
+            <span id="currentLangBadge" class="lang-pill ru">🇷🇺 Русский</span>
+            <div class="segmented" id="layoutSegmented">
+              <button class="seg-btn active" data-layout="parallel" title="原文与中文左右双栏逐句对齐">双栏对照</button>
+              <button class="seg-btn" data-layout="interlinear" title="原文段落与中文译文上下交替">上下逐段</button>
+              <button class="seg-btn" data-layout="cloze_read" title="默认模糊遮盖中文译文，悬停或点击显现">遮罩自测</button>
+              <button id="btnPdfSplitLayout" class="seg-btn hidden" data-layout="pdf_split" title="左侧对照原版 PDF，右侧交互式精读">原版 PDF</button>
+            </div>
+          </div>
+
+          <div class="toolbar-group">
+            <button id="btnToggleStress" class="btn btn-tool" title="为俄语全文标注重音符号 (ударе́ние)">
+              <span>✨ 俄语重音</span>
+            </button>
+            <button id="btnToggleAcademicHl" class="btn btn-tool active" title="用细虚线标出论文中的高频学术核心词汇">
+              <span>🔖 学术词</span>
+            </button>
+            <button id="btnTranslatePaper" class="btn btn-tool" title="自动翻译未译段落，或用已配置的大模型重译全文">
+              <span>🌐 补全/重译</span>
+            </button>
+            <div class="font-controls" title="调节阅读字号">
+              <button id="btnFontDec" class="font-btn">A-</button>
+              <button id="btnFontInc" class="font-btn">A+</button>
+            </div>
+            <button id="btnToggleInspector" class="icon-btn" title="展开/收起右侧语言学显微镜">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="16" rx="2"/><line x1="15" y1="4" x2="15" y2="20"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div id="readerSplitWrap" class="reader-split-wrap">
+          <div id="pdfViewerPane" class="pdf-viewer-pane hidden">
+            <iframe id="pdfIframe" title="Original PDF Viewer"></iframe>
+          </div>
+
+          <div id="readerScroll" class="reader-scroll">
+            <article id="paperArticle" class="paper-article"></article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Sidebar / Mobile Drawer: Linguistic Microscope -->
+      <aside id="inspectorPane" class="inspector">
+        <div class="inspector-mobile-bar">
+          <span>🔬 语言学显微镜与语法教练</span>
+          <button id="btnCloseInspectorMobile" class="close-drawer-mobile">✕ 收起</button>
+        </div>
+
+        <div class="inspector-search">
+          <input id="quickLookupInput" type="text" placeholder="输入任意俄/英单词查变格（或粘贴 DOI）..." />
+          <button id="btnQuickLookup" class="btn btn-secondary btn-sm">查询</button>
+        </div>
+
+        <div class="inspector-tabs">
+          <button class="insp-tab active" data-insp="word">🔍 划词词法</button>
+          <button class="insp-tab" data-insp="sentence">🧩 长难句拆解</button>
+          <button class="insp-tab" data-insp="notes">📝 精读笔记</button>
+        </div>
+
+        <div id="inspWordPanel" class="insp-body active">
+          <div class="empty-inspector">
+            <div class="empty-icon">🔬</div>
+            <h4>三语词法显微镜</h4>
+            <p>点击论文中的<strong>任意俄语或英语单词</strong>，即可在此查看：</p>
+            <ul>
+              <li>🇷🇺 <strong>俄语</strong>：原形还原、重音与音节、六格表/变位表、形动词溯源</li>
+              <li>🇬🇧 <strong>英语</strong>：音标与原形、词根词缀、AWL 学术释义</li>
+              <li>🔄 <strong>英俄互证</strong>：查俄语给英语同义词；查英语给带重音俄语词</li>
+            </ul>
+          </div>
+        </div>
+
+        <div id="inspSentencePanel" class="insp-body">
+          <div class="empty-inspector">
+            <div class="empty-icon">🧩</div>
+            <h4>学术长难句结构教练</h4>
+            <p>点击论文任意句子旁的 <strong>「拆解」</strong> 按钮，即可获得：</p>
+            <ul>
+              <li>中 / 英 / 俄三语学术等价句对照与慢速跟读</li>
+              <li>彩色逐词词性·格位角色彩带（主语、属格链、形动词、从句引导词）</li>
+              <li>分句层级切分、论文高频句式提取与 AI 语法答疑</li>
+            </ul>
+          </div>
+        </div>
+
+        <div id="inspNotesPanel" class="insp-body">
+          <div class="notes-panel-wrap">
+            <div class="notes-header">
+              <span>当前文献个人笔记（自动云端同步）</span>
+              <button id="btnExportPaperMd" class="btn btn-secondary btn-xs">📥 导出讲义 (.md)</button>
+            </div>
+            <textarea id="paperNotesArea" placeholder="在此记录论文核心贡献、公式推导笔记，或摘录值得模仿的俄/英学术句型..."></textarea>
+            <div id="notesSaveHint" class="notes-save-hint">已同步保存</div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- ==================== VIEW 2: VOCABULARY NOTEBOOK ==================== -->
+  <main id="viewVocab" class="view-container">
+    <div class="page-wrap">
+      <div class="page-header">
+        <div>
+          <h2>🗂️ 学术生词与跨语种句型本</h2>
+          <p class="page-sub">自动关联论文原句语境，支持俄英双向对照记忆与一键导出 Anki 记忆包</p>
+        </div>
+        <div class="page-actions">
+          <button id="btnAddManualVocab" class="btn btn-secondary">＋ 手动录入词条</button>
+          <button id="btnExportAnki" class="btn btn-primary">📥 导出 Anki 包 (.tsv)</button>
+          <button id="btnExportVocabMd" class="btn btn-ghost">📄 导出词汇讲义 (.md)</button>
+        </div>
+      </div>
+
+      <div class="vocab-controls">
+        <div class="segmented" id="vocabLangFilter">
+          <button class="seg-btn active" data-vlang="">全部词条</button>
+          <button class="seg-btn" data-vlang="ru">🇷🇺 俄语学术词</button>
+          <button class="seg-btn" data-vlang="en">🇬🇧 英语学术词</button>
+        </div>
+        <input id="vocabSearchInput" class="search-input" type="text" placeholder="搜索单词、原形、中文释义或英俄互证词..." />
+      </div>
+
+      <div id="vocabGrid" class="vocab-grid"></div>
+    </div>
+  </main>
+
+  <!-- ==================== VIEW 3: FLASHCARDS & CLOZE TRAINER ==================== -->
+  <main id="viewTrainer" class="view-container">
+    <div class="page-wrap trainer-wrap">
+      <div class="trainer-topbar">
+        <div class="segmented" id="trainerModeSwitch">
+          <button class="seg-btn active" data-tmode="flashcard">🎴 3D 记忆闪卡 (SM-2)</button>
+          <button class="seg-btn" data-tmode="cloze">✍️ 原句语境填空自测</button>
+        </div>
+
+        <div class="trainer-filters">
+          <select id="trainerLangSelect" class="select-sm">
+            <option value="all">🌍 俄语 + 英语混合</option>
+            <option value="ru">🇷🇺 仅练俄语 (Русский)</option>
+            <option value="en">🇬🇧 仅练英语 (English)</option>
+          </select>
+          <label class="checkbox-inline" title="在俄语闪卡正面先隐藏重音符号，检验自己能否读准重音">
+            <input type="checkbox" id="chkHideStressFront" />
+            <span>隐藏正面重音</span>
+          </label>
+        </div>
+      </div>
+
+      <div id="flashcardStage" class="trainer-stage">
+        <div id="flashcardProgress" class="trainer-progress"></div>
+        <div id="flashcardContainer" class="flashcard-scene">
+          <div id="flashcardEl" class="flashcard">
+            <div class="card-face card-front" id="cardFront"></div>
+            <div class="card-face card-back" id="cardBack"></div>
+          </div>
+        </div>
+        <div id="flashcardActions" class="sm2-actions hidden">
+          <button class="sm2-btn again" data-quality="0">
+            <strong>忘记 (Again)</strong>
+            <span>10 分钟后重现</span>
+          </button>
+          <button class="sm2-btn hard" data-quality="2">
+            <strong>模糊 (Hard)</strong>
+            <span>12 小时后复习</span>
+          </button>
+          <button class="sm2-btn good" data-quality="4">
+            <strong>记得 (Good)</strong>
+            <span>标准间隔推进</span>
+          </button>
+          <button class="sm2-btn easy" data-quality="5">
+            <strong>熟练 (Easy)</strong>
+            <span>大幅延长周期</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="clozeStage" class="trainer-stage hidden">
+        <div id="clozeBox" class="cloze-card"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ==================== MODAL: AUTHENTICATION (LOGIN / REGISTER) ==================== -->
+  <div id="modalAuth" class="modal-backdrop hidden">
+    <div class="modal" style="max-width:460px">
+      <div class="modal-header">
+        <h3>👤 个人云端学术空间</h3>
+        <button class="close-modal" data-close="modalAuth">✕</button>
+      </div>
+      <div class="modal-tabs">
+        <button class="auth-tab active" data-atab="login">登录账号</button>
+        <button class="auth-tab" data-atab="register">✨ 免费注册</button>
+      </div>
+
+      <div class="modal-body active">
+        <div class="engine-banner" style="margin-bottom:14px">
+          <p style="margin:0">🔒 每位注册用户拥有<strong>完全独立隔离</strong>的文献书架、生词本、复习进度与私密 API Key 存储。当前游客模式下收藏的数据将在注册/登录时<strong>自动合并迁入</strong>你的账号！</p>
+        </div>
+
+        <form id="authForm" autocomplete="on">
+          <div class="form-row">
+            <label>账号名称或邮箱</label>
+            <input id="authUsername" type="text" placeholder="例如：ivan_scholar 或 name@edu.cn" required />
+          </div>
+          <div id="authDisplayNameRow" class="form-row hidden">
+            <label>显示昵称（选填）</label>
+            <input id="authDisplayName" type="text" placeholder="例如：林同学 / Dr. Chen" />
+          </div>
+          <div class="form-row">
+            <label>登录密码（至少 6 位）</label>
+            <input id="authPassword" type="password" placeholder="请输入密码" required />
+          </div>
+          <div id="authErrorMsg" class="doi-progress-banner is-error hidden"></div>
+          <div class="modal-footer">
+            <button id="btnAuthSubmit" type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:9px">
+              登录并同步我的书架
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: USER PROFILE & STATS ==================== -->
+  <div id="modalProfile" class="modal-backdrop hidden">
+    <div class="modal" style="max-width:480px">
+      <div class="modal-header">
+        <h3>🎓 我的学术空间概览</h3>
+        <button class="close-modal" data-close="modalProfile">✕</button>
+      </div>
+      <div class="modal-body active">
+        <div id="profileSummaryBox"></div>
+        <div class="modal-footer" style="justify-content:space-between;margin-top:18px">
+          <div style="display:flex;gap:8px;align-items:center">
+            <span class="muted">阅读主题：</span>
+            <button class="chip" data-set-theme="light">☀️ 清爽白</button>
+            <button class="chip" data-set-theme="sepia">📜 羊皮纸</button>
+            <button class="chip" data-set-theme="dark">🌙 夜间</button>
+          </div>
+          <button id="btnLogout" class="btn btn-secondary">退出登录</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: IMPORT PAPER ==================== -->
+  <div id="modalImport" class="modal-backdrop hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>📥 导入俄语或英语学术论文</h3>
+        <button class="close-modal" data-close="modalImport">✕</button>
+      </div>
+      <div class="modal-tabs">
+        <button class="mtab active" data-itab="doi">🔗 DOI 编号</button>
+        <button class="mtab" data-itab="pdf">📄 上传 PDF</button>
+        <button class="mtab" data-itab="text">📝 粘贴文本</button>
+        <button class="mtab" data-itab="arxiv">🌐 arXiv</button>
+      </div>
+
+      <!-- Tab: DOI Import -->
+      <div id="itabDoi" class="modal-body active">
+        <form id="modalDoiForm" autocomplete="off">
+          <div class="form-row">
+            <label>输入论文 DOI 编号或 doi.org 链接（支持俄文期刊与国际英文期刊）</label>
+            <input id="impDoiInput" type="text" placeholder="例如：10.60797/IRJ.2026.170.43 或 https://doi.org/10.18653/v1/N19-1423" />
+            <div class="preset-bar" style="margin-top:8px;margin-bottom:0">
+              <span>一键示例：</span>
+              <button type="button" class="chip" data-sample-doi="10.60797/IRJ.2026.170.43">🇷🇺 俄语期刊全文 (10.60797/IRJ.2026.170.43)</button>
+              <button type="button" class="chip" data-sample-doi="10.18653/v1/N19-1423">🇬🇧 ACL 英语全文 (10.18653/v1/N19-1423)</button>
+              <button type="button" class="chip" data-sample-doi="10.48550/arXiv.1706.03762">🇬🇧 arXiv DOI (10.48550/arXiv.1706.03762)</button>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label class="switch-row">
+              <input type="checkbox" id="chkDoiFulltext" checked />
+              <span><strong>优先抓取开放获取 (Open Access) PDF 全文</strong>（自动开启「原版 PDF」同屏对照；若期刊受订阅限制则自动导入题录、双语摘要与关键词）</span>
+            </label>
+            <p class="form-help">内置四级并发引擎：<code>Crossref</code> + <code>OpenAlex</code> + <code>Semantic Scholar</code> + <code>期刊页元数据追踪</code>，全面兼容俄语与英语文献。</p>
+          </div>
+
+          <div id="doiProgressBanner" class="doi-progress-banner hidden"></div>
+
+          <div class="modal-footer">
+            <span id="importDoiStatus" class="status-msg"></span>
+            <button id="btnSubmitDoi" type="submit" class="btn btn-primary">🔍 解析 DOI 并导入精读</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Tab: PDF Upload -->
+      <div id="itabPdf" class="modal-body">
+        <div id="pdfDropzone" class="dropzone">
+          <div class="drop-icon">📑</div>
+          <p><strong>点击选择或拖拽 PDF 论文文件到此处</strong></p>
+          <p class="muted">支持俄语（CyberLeninka / РАН 期刊）与英语（arXiv / IEEE / ACL 等）文本版 PDF，自动修复跨行连字符并智能分段</p>
+          <input type="file" id="pdfFileInput" accept=".pdf,application/pdf" class="hidden" />
+          <div id="selectedPdfName" class="selected-file"></div>
+        </div>
+        <div class="modal-footer">
+          <span id="importPdfStatus" class="status-msg"></span>
+          <button id="btnSubmitPdf" class="btn btn-primary">解析并生成双语精读视图</button>
+        </div>
+      </div>
+
+      <!-- Tab: Text Paste -->
+      <div id="itabText" class="modal-body">
+        <div class="form-row">
+          <label>论文标题（可选，留空将自动提取首行）</label>
+          <input id="impTextTitle" type="text" placeholder="例如：Методы оптимизации... 或 Attention Mechanisms in..." />
+        </div>
+        <div class="form-row two-col">
+          <div>
+            <label>作者 / 期刊来源（可选）</label>
+            <input id="impTextAuthors" type="text" placeholder="作者或期刊名称" />
+          </div>
+          <div>
+            <label>原文语种</label>
+            <select id="impTextLang">
+              <option value="auto">✨ 自动检测（俄语 / 英语）</option>
+              <option value="ru">🇷🇺 俄语 (Русский)</option>
+              <option value="en">🇬🇧 英语 (English)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>论文正文 / 摘要段落</label>
+          <textarea id="impTextContent" rows="7" placeholder="在此粘贴俄语或英语论文段落..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <span id="importTextStatus" class="status-msg"></span>
+          <button id="btnSubmitText" class="btn btn-primary">导入并开始对照翻译</button>
+        </div>
+      </div>
+
+      <!-- Tab: arXiv -->
+      <div id="itabArxiv" class="modal-body">
+        <div class="form-row">
+          <label>输入 arXiv 论文编号或链接</label>
+          <input id="impArxivId" type="text" placeholder="例如：1706.03762 或 https://arxiv.org/abs/2005.14165" />
+          <label class="switch-row" style="margin-top:10px">
+            <input type="checkbox" id="chkArxivFulltext" checked />
+            <span>同时自动下载 arXiv 原版 PDF 全文并支持分屏对照</span>
+          </label>
+        </div>
+        <div class="modal-footer">
+          <span id="importArxivStatus" class="status-msg"></span>
+          <button id="btnSubmitArxiv" class="btn btn-primary">抓取并导入</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: ENGINE & API SETTINGS ==================== -->
+  <div id="modalSettings" class="modal-backdrop hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>⚙️ 个人翻译引擎、大模型 API 与语音设置</h3>
+        <button class="close-modal" data-close="modalSettings">✕</button>
+      </div>
+      <div class="modal-body active">
+        <div class="engine-banner">
+          <div>
+            <strong>✅ 内置免配置学术引擎已激活（开箱即用）</strong>
+            <p>默认集成：Google 学术翻译 + PyMorphy3 俄语形态引擎 + Wiktionary 重音词库 + DictionaryAPI + Edge 神经网络语音。配置的 API Key 仅加密保存在你的当前账号下，其他用户不可见。</p>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label class="switch-row">
+            <input type="checkbox" id="cfgLlmEnabled" />
+            <span><strong>启用自定义大模型 API 驱动深度翻译与语法精讲</strong>（OpenAI 兼容格式）</span>
+          </label>
+        </div>
+
+        <div class="preset-bar">
+          <span>快速预设：</span>
+          <button type="button" class="chip" data-preset="deepseek">DeepSeek</button>
+          <button type="button" class="chip" data-preset="openai">OpenAI</button>
+          <button type="button" class="chip" data-preset="qwen">通义千问 Qwen</button>
+          <button type="button" class="chip" data-preset="siliconflow">SiliconFlow</button>
+          <button type="button" class="chip" data-preset="ollama">本地 Ollama</button>
+        </div>
+
+        <div class="form-row two-col">
+          <div>
+            <label>API Base URL</label>
+            <input id="cfgBaseUrl" type="text" placeholder="https://api.deepseek.com/v1" />
+          </div>
+          <div>
+            <label>模型名称 (Model)</label>
+            <input id="cfgModel" type="text" placeholder="deepseek-chat" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label>API Key（仅属于你当前个人账号，脱敏保护）</label>
+          <input id="cfgApiKey" type="password" placeholder="sk-..." />
+          <p id="ollamaHint" class="form-help hidden">💡 提示：若部署在公网云平台，请填写公网可访问的大模型 API（如 DeepSeek / Qwen / OpenAI）；本地运行则可直连本机 Ollama。</p>
+        </div>
+
+        <hr class="divider" />
+
+        <div class="form-row two-col">
+          <div>
+            <label>🇷🇺 俄语神经网络朗读音色</label>
+            <select id="cfgRuVoice">
+              <option value="ru-RU-SvetlanaNeural">Svetlana（俄语标准清晰女声 · 推荐）</option>
+              <option value="ru-RU-DmitryNeural">Dmitry（俄语沉稳播音男声）</option>
+            </select>
+          </div>
+          <div>
+            <label>🇬🇧 英语神经网络朗读音色</label>
+            <select id="cfgEnVoice">
+              <option value="en-US-AriaNeural">Aria（美式清晰学术女声 · 推荐）</option>
+              <option value="en-GB-RyanNeural">Ryan（英式标准学术男声）</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <span id="settingsStatus" class="status-msg"></span>
+          <button id="btnTestLlm" type="button" class="btn btn-secondary">🔌 测试连接</button>
+          <button id="btnSaveSettings" type="button" class="btn btn-primary">保存个人设置</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: MANUAL VOCAB ADD ==================== -->
+  <div id="modalManualVocab" class="modal-backdrop hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>＋ 手动添加俄/英学术词汇或句式</h3>
+        <button class="close-modal" data-close="modalManualVocab">✕</button>
+      </div>
+      <div class="modal-body active">
+        <div class="form-row two-col">
+          <div>
+            <label>单词或学术短语</label>
+            <input id="mvWord" type="text" placeholder="如：обусловленный 或 empirical" />
+          </div>
+          <div>
+            <label>语种</label>
+            <select id="mvLang">
+              <option value="ru">🇷🇺 俄语 (Русский)</option>
+              <option value="en">🇬🇧 英语 (English)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row two-col">
+          <div>
+            <label>词典原形 / 重音或音标（选填）</label>
+            <input id="mvStressed" type="text" placeholder="如：обусло́вить 或 /ɪmˈpɪrɪkl/" />
+          </div>
+          <div>
+            <label>英俄互证词（选填）</label>
+            <input id="mvBridge" type="text" placeholder="对应的英语或俄语同义表达" />
+          </div>
+        </div>
+        <div class="form-row">
+          <label>中文释义</label>
+          <input id="mvMeaningZh" type="text" placeholder="中文学术含义" />
+        </div>
+        <div class="form-row">
+          <label>语法笔记 / 论文例句（选填）</label>
+          <textarea id="mvContext" rows="3" placeholder="例句或变格支配笔记..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button id="btnSaveManualVocab" class="btn btn-primary">保存到生词本</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+  <audio id="ttsAudio" preload="none"></audio>
+
+  <script src="/static/app.js?v=4.3"></script>
+</body>
+</html>

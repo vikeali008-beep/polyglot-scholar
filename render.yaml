@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: polyglot-scholar
+    runtime: docker
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: "10000"
+      - key: PYTHON_VERSION
+        value: "3.11.9"
